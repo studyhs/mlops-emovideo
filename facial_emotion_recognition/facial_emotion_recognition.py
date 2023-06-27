@@ -59,12 +59,12 @@ class EmotionRecognition(object):
                                    color=[0, 0, 0], fontScale=1, thickness=1)
 
             if return_type == 'BGR':
-                return frame
+                return True, frame
             if return_type == 'RGB':
-                return cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                return True, cv.cvtColor(frame, cv.COLOR_BGR2RGB)
         else:
             print('No face detected')
             if return_type == 'BGR':
-                return frame
+                return False, frame
             if return_type == 'RGB':
-                return cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                return False, cv.cvtColor(frame, cv.COLOR_BGR2RGB)
