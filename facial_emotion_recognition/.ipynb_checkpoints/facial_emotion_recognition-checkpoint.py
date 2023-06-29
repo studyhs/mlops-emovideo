@@ -1,6 +1,7 @@
 from .networks import NetworkV2
 import torch
 import torchvision.transforms as transforms
+from torchvision.models import resnet18
 import numpy as np
 import cv2 as cv
 from facenet_pytorch import MTCNN
@@ -18,11 +19,12 @@ class EmotionRecognition(object):
                 self.device = torch.device(f'cuda:{str(gpu_id)}')
         else:
             if device == 'gpu':
-                print('[*]Warning: No GPU is detected, so cpu is selected as device')
+                print('[*]Warning: No GPU is detected, so cpu is selected as dsevice')
                 self.device = torch.device('cpu')
             if device == 'cpu':
                 self.device = torch.device('cpu')
-        self.network = NetworkV2(in_c=1, nl=32, out_f=7).to(self.device)
+
+        # self.network = NetworkV2(in_c=1, nl=32, out_f=7).to(self.device)
         self.transform = transforms.Compose([
             transforms.ToPILImage(),
             transforms.Resize((48, 48)),
@@ -31,10 +33,16 @@ class EmotionRecognition(object):
         ])
         self.mtcnn = MTCNN(keep_all=True, device=self.device)
 
-        model_dict = torch.load(os.path.join(os.path.dirname(__file__), 'model', 'model.pkl'), map_location=self.device)
-        print(f'[*] Accuracy: {model_dict["accuracy"]}')
+        # model_dict = torch.load(os.path.join(os.path.dirname(__file__), 'model', 'model.pkl'), map_location=self.device)
+        network = torch.load(os.path.join(os.path.dirname(__file__), 'model', 'ResNet18_lr_0.1_model.pt'), map_location=self.device)
+        accuracy = torch.load(os.path.join(os.path.dirname(__file__), 'model', 'ResNet18_lr_0.1_accuracy.pt'))
+        
+        
+        print(f'[*] Accuracy: {accuracy}')
         self.emotions = {0: 'Angry', 1: 'Disgust', 2: 'Fear', 3: 'Happy', 4: 'Sad', 5: 'Surprise', 6: 'Neutral'}
-        self.network.load_state_dict(model_dict['network'])
+        # self.network.load_state_dict(model_dict['network'])
+        
+        self.network = network
         self.network.eval()
 
     def _predict(self, image):
